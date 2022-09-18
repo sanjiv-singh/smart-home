@@ -13,10 +13,6 @@ class LightDevice(Device):
         # Assigning device level information for each of the devices. 
         self._device_type = "LIGHT"
         super().__init__(device_id, room)
-        self._register_device(self._device_id, self._room_type, self._device_type)
-
-    def _register_device(self, device_id, room_type, device_type):
-        pass
 
     # Connect method to subscribe to various topics. 
     def _on_connect(self, client, userdata, flags, result_code):

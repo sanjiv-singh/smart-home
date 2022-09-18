@@ -20,11 +20,18 @@ class Device(ABC):
         self.client.connect(HOST, PORT, keepalive=60)  
         self.client.loop_start()  
         self._switch_status = "OFF"
+        self.request_topic = f'device_request/{device_id}'
+        self._register_device(self._device_id, self._room_type, self._device_type)
 
     # calling registration method to register the device
-    @abstractmethod
     def _register_device(self, device_id, room_type, device_type):
-        pass
+        message = {
+                "device_id": device_id,
+                "request_type": "register",
+                "room_type": room_type,
+                "device_type": device_type
+        }
+        self.client.publish(self.request_topic, json.dumps(message))
 
     # Connect method to subscribe to various topics. 
     @abstractmethod
