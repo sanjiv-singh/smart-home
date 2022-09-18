@@ -8,11 +8,11 @@ class LightDevice(Device):
 
     # setting up the intensity choices for Smart Light Bulb  
     _INTENSITY = ["LOW", "HIGH", "MEDIUM", "OFF"]
+    _DEVICE_TYPE = "LIGHT"
 
     def __init__(self, device_id, room):
         # Assigning device level information for each of the devices. 
-        self._device_type = "LIGHT"
-        super().__init__(device_id, room)
+        super().__init__(device_id, room, LightDevice._DEVICE_TYPE)
 
     # Connect method to subscribe to various topics. 
     def _on_connect(self, client, userdata, flags, result_code):

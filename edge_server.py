@@ -5,7 +5,11 @@ import paho.mqtt.client as mqtt
 
 HOST = "localhost"
 PORT = 1883     
-WAIT_TIME = 0.25  
+WAIT_TIME = 0.25
+
+REQUEST_TOPIC = 'device_request'
+MESSAGE_TOPIC = 'device'
+
 
 class EdgeServer:
     
@@ -26,7 +30,7 @@ class EdgeServer:
 
     # Connect method to subscribe to various topics.     
     def _on_connect(self, client, userdata, flags, result_code):
-        self.client.subscribe('device_request/#')
+        self.client.subscribe(REQUEST_TOPIC + '/#')
         
     # method to process the recieved messages and publish them on relevant topics 
     # this method can also be used to take the action based on received commands
@@ -39,11 +43,15 @@ class EdgeServer:
     # Returning the current registered list
     def _register_device(self, payload):
         device_id = payload.get('device_id')
+        message_topic = MESSAGE_TOPIC + '/?/?/' + device_id
         print(f'Registering device {device_id} on Edge Server.')
         if device_id in [d["device_id"] for d in self._registered_list]:
             print(f'Device {device_id} already registered.')
-            return
-        self._registered_list.append(payload)
+            message = {"msg_type": "ERROR", "msg": "Device already registered"}
+        else:
+            self._registered_list.append(payload)
+            message = {"msg_type": "INFO", "msg": f"Device {device_id} succesfully registered"}
+        self.client.publish(message_topic, json.dumps(message))
 
     # Returning the current registered list
     def get_registered_device_list(self):

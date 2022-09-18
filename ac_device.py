@@ -6,14 +6,14 @@ from device import Device
 
 class ACDevice(Device):
     
+    _DEVICE_TYPE = "AC"
     _MIN_TEMP = 18  
     _MAX_TEMP = 32  
 
     def __init__(self, device_id, room):
         
         self._temperature = 22
-        self._device_type = "AC"
-        super().__init__(device_id, room)
+        super().__init__(device_id, room, ACDevice._DEVICE_TYPE)
 
     # Connect method to subscribe to various topics. 
     def _on_connect(self, client, userdata, flags, result_code):
