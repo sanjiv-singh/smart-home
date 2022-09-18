@@ -14,11 +14,16 @@ class ACDevice(Device):
         self._temperature = 22
         self._device_type = "AC"
         super().__init__(device_id, room)
+        self.request_topic = f'device_request/{device_id}'
         self._register_device(self._device_id, self._room_type, self._device_type)
 
     # calling registration method to register the device
     def _register_device(self, device_id, room_type, device_type):
-        pass
+        message = {
+                "device_id": device_id,
+                "request_type": "register"
+        }
+        self.client.publish(self.request_topic, json.dumps(message))
 
     # Connect method to subscribe to various topics. 
     def _on_connect(self, client, userdata, flags, result_code):

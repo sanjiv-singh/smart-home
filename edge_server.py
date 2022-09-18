@@ -26,12 +26,22 @@ class EdgeServer:
 
     # Connect method to subscribe to various topics.     
     def _on_connect(self, client, userdata, flags, result_code):
-        pass
+        self.client.subscribe('device_request/#')
         
     # method to process the recieved messages and publish them on relevant topics 
     # this method can also be used to take the action based on received commands
     def _on_message(self, client, userdata, msg):
-        pass
+        payload = json.loads(msg.payload)
+        if payload.get('request_type') == 'register':
+            self._register_device(payload.get("device_id"))
+
+    # Returning the current registered list
+    def _register_device(self, device_id):
+        print(f'Registering device {device_id} on Edge Server.')
+        if device_id in self._registered_list:
+            print(f'Device {device_id} already registered.')
+            return
+        self._registered_list.append(device_id)
 
     # Returning the current registered list
     def get_registered_device_list(self):
