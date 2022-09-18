@@ -21,7 +21,9 @@ class ACDevice(Device):
     def _register_device(self, device_id, room_type, device_type):
         message = {
                 "device_id": device_id,
-                "request_type": "register"
+                "request_type": "register",
+                "room_type": "room_type",
+                "device_type": "device_type"
         }
         self.client.publish(self.request_topic, json.dumps(message))
 

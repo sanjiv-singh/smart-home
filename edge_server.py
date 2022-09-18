@@ -33,15 +33,17 @@ class EdgeServer:
     def _on_message(self, client, userdata, msg):
         payload = json.loads(msg.payload)
         if payload.get('request_type') == 'register':
-            self._register_device(payload.get("device_id"))
+            del payload["request_type"]
+            self._register_device(payload)
 
     # Returning the current registered list
-    def _register_device(self, device_id):
+    def _register_device(self, payload):
+        device_id = payload.get('device_id')
         print(f'Registering device {device_id} on Edge Server.')
-        if device_id in self._registered_list:
+        if device_id in [d["device_id"] for d in self._registered_list]:
             print(f'Device {device_id} already registered.')
             return
-        self._registered_list.append(device_id)
+        self._registered_list.append(payload)
 
     # Returning the current registered list
     def get_registered_device_list(self):
