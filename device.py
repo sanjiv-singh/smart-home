@@ -14,6 +14,8 @@ class Device(ABC):
         self._room_type = room
         self._device_type = device_type
         self._device_registration_flag = False
+        self._inbound_topic = f'inbound/{room}/{device_type}/{device_id}'
+        self._outbound_topic = f'outbound/{device_id}'
         self.client = mqtt.Client(self._device_id)  
         self.client.on_connect = self._on_connect  
         self.client.on_message = self._on_message  
@@ -21,9 +23,6 @@ class Device(ABC):
         self.client.connect(HOST, PORT, keepalive=60)  
         self.client.loop_start()  
         self._switch_status = "OFF"
-        self._message_topic = f'device/{room}/{device_type}/{device_id}'
-        self.client.subscribe(self._message_topic)
-        self._request_topic = f'device_request/{device_id}'
         self._register_device(self._device_id, self._room_type, device_type)
         self._device_registration_flag = True
 
@@ -35,12 +34,12 @@ class Device(ABC):
                 "room_type": room_type,
                 "device_type": device_type
         }
-        self.client.publish(self._request_topic, json.dumps(message))
+        self.client.publish(self._outbound_topic, json.dumps(message))
 
     # Connect method to subscribe to various topics. 
     @abstractmethod
     def _on_connect(self, client, userdata, flags, result_code):
-        pass
+        self.client.subscribe(self._inbound_topic)
 
     # Disconnect method to terminate connection. 
     @abstractmethod
@@ -49,8 +48,8 @@ class Device(ABC):
 
     # method to process the recieved messages and publish them on relevant topics 
     # this method can also be used to take the action based on received commands
-    @abstractmethod
     def _on_message(self, client, userdata, msg): 
+        print("Received msg...")
         print(msg.payload)
 
     # Getting the current switch status of devices 
