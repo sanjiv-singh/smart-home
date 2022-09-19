@@ -36,14 +36,14 @@ class EdgeServer:
     # this method can also be used to take the action based on received commands
     def _on_message(self, client, userdata, msg):
         payload = json.loads(msg.payload)
-        if payload.get('request_type') == 'register':
-            del payload["request_type"]
+        if payload.get('msg_type') == 'register':
+            del payload["msg_type"]
             self._register_device(payload)
 
     # Returning the current registered list
     def _register_device(self, payload):
         device_id = payload.get('device_id')
-        inbound_topic = f'{INBOUND_TOPIC }/{payload.get("room_type")}/{payload.get("device_type")}/{device_id}'
+        inbound_topic = f'{INBOUND_TOPIC}/{payload.get("room_type")}/{payload.get("device_type")}/{device_id}'
         print(f'Registering device {device_id} on Edge Server.')
         if device_id in [d["device_id"] for d in self._registered_list]:
             print(f'Device {device_id} already registered.')
