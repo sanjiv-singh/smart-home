@@ -12,21 +12,9 @@ class ACDevice(Device):
 
     def __init__(self, device_id, room):
         
+        # Assigning device level information for each of the devices.
         self._temperature = 22
-        super().__init__(device_id, room, ACDevice._DEVICE_TYPE)
-
-    # Connect method to subscribe to various topics. 
-    def _on_connect(self, client, userdata, flags, result_code):
-        pass
-
-    # Disconnect method to terminate connection. 
-    def _on_disconnect(self, client, userdata, result_code):
-        pass
-
-    # method to process the recieved messages and publish them on relevant topics 
-    # this method can also be used to take the action based on received commands
-    def _on_message(self, client, userdata, msg): 
-        pass
+        super().__init__(device_id, room, self._DEVICE_TYPE)
 
     # Getting the current switch status of devices 
     def _get_switch_status(self):

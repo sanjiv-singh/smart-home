@@ -23,4 +23,6 @@ ac_device_1 = ACDevice("ac_1", "BR1")
 time.sleep(WAIT_TIME)  
 
 print("\nSmart Home Simulation stopped.")
+light_device_1.terminate()
+ac_device_1.terminate()
 edge_server_1.terminate()
