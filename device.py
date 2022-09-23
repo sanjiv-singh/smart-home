@@ -59,7 +59,9 @@ class Device(ABC):
     def _on_message(self, client, userdata, msg): 
         payload = json.loads(msg.payload)
         msg_type = payload.get("msg_type")
-        action = self._MESSAGE_ACTION_MAPPING[msg_type]
+        action = self._MESSAGE_ACTION_MAPPING.get(msg_type)
+        if not action:   # Value is None when method not implemented for device type
+            return
         action(payload)
 
     # Getting the current switch status of devices 
