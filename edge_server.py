@@ -23,6 +23,7 @@ class EdgeServer:
         self._registered_list = []
         self._MESSAGE_ACTION_MAPPING = {
             "REGISTER": self._register_device,
+            "STATUS": self._report_status,
             "ERROR": self._report_error,
             "INFO": self._log,
             "ACK": self._log
@@ -51,11 +52,12 @@ class EdgeServer:
         device_id = payload.get('device_id')
         room_type = payload.get('room_type')
         inbound_topic = f'{INBOUND_TOPIC}/{payload.get("room_type")}/{payload.get("device_type")}/{device_id}'
-        print(f'Edge: Registering device {device_id} for {room_type}')
+        print(f'\nEdge: Registering device {device_id} for {room_type}')
         if device_id in [d["device_id"] for d in self._registered_list]:
             print(f'Edge: Device {device_id} already registered.')
             message = {"msg_type": "ERROR", "msg": "Device already registered"}
         else:
+            del payload["msg_type"]
             self._registered_list.append(payload)
             message = {"msg_type": "INFO", "msg": f"Device {device_id} succesfully registered for {room_type}"}
         self.client.publish(inbound_topic, json.dumps(message), qos=2)
@@ -65,13 +67,30 @@ class EdgeServer:
         return self._registered_list
 
     # Getting the status for the connected devices
-    def get_status(self):
-        pass
+    def get_status(self, param="all", value=None):
+        if param == 'all':
+            devices = self._registered_list
+        else:
+            devices = [device for device in self._registered_list if device[param] == value]
+        payload = {"msg_type": "GET_STATUS", "msg": ""}
+        for device in devices:
+            topic_str = f'{INBOUND_TOPIC}/{device["room_type"]}/{device["device_type"]}/{device["device_id"]}'
+            self.client.publish(topic_str, json.dumps(payload), qos=2)
 
     # Controlling and performing the operations on the devices
     # based on the request received
-    def set(self):
-        pass
+    def set(self, param="all", value=None, control_param="switch", control_value="OFF"):
+        if param == 'all':
+            devices = self._registered_list
+        else:
+            devices = [device for device in self._registered_list if device[param] == value]
+        payload = {"msg_type": f"SET_{control_param.upper()}", "value": control_value}
+        for device in devices:
+            topic_str = f'{INBOUND_TOPIC}/{device["room_type"]}/{device["device_type"]}/{device["device_id"]}'
+            self.client.publish(topic_str, json.dumps(payload), qos=2)
+
+    def _report_status(self, payload):
+        print(f'Status of {payload["device_id"]}: {payload}')
 
     def _report_error(self, payload):
         self._raise_alert(payload)

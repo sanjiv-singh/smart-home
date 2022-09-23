@@ -14,7 +14,7 @@ class Device(ABC):
     def __init__(self, device_id, room, device_type):
         
         self._MESSAGE_ACTION_MAPPING = {
-            "SWITCH_STATUS": self._register_device,
+            "GET_STATUS": self._get_status,
             "ERROR": self._report_error,
             "INFO": self._ack,
             "ACK": self._log
@@ -63,9 +63,14 @@ class Device(ABC):
         action(payload)
 
     # Getting the current switch status of devices 
-    @abstractmethod
-    def _get_switch_status(self):
-        pass
+    def _get_status(self, payload=None):
+        payload = {"msg_type": "STATUS",
+                "device_id": self._device_id,
+                "room_type": self._room_type,
+                "device_type": self._device_type,
+                "switch_state": self._switch_state,
+                "intensity": self._intensity}
+        self.client.publish(self._outbound_topic, json.dumps(payload), qos=2)
 
     # Setting the the switch of devices
     @abstractmethod
