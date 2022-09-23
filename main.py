@@ -15,12 +15,12 @@ print("\n=========================== REQUIREMENT 1 (DEVICE REGISTRATION) =======
 
 print("Intitate the device creation and registration process." )
 
-print('\n******************* REGSITRATION OF THE DEVICES THROUGH SERVER *******************')
+print('\n******************* REGISTRATION OF THE DEVICES THROUGH SERVER *******************')
 
 # Creating the light_device
 print("\nCreating and registering Light devices for their respective rooms.")
 
-print('\n******************* REGSITRATION OF LIGHT DEVICES INITIATED *******************')
+print('\n******************* REGISTRATION OF LIGHT DEVICES INITIATED *******************')
 light_device_1 = LightDevice("light_1", "Kitchen")
 time.sleep(WAIT_TIME)  
 
@@ -39,7 +39,7 @@ time.sleep(WAIT_TIME)
 # Creating the ac_device  
 print("\nCreating the AC devices for their respective rooms. ")
 
-print('\n******************* REGSITRATION OF AC DEVICES INITIATED *******************')
+print('\n******************* REGISTRATION OF AC DEVICES INITIATED *******************')
 ac_device_1 = ACDevice("ac_1", "BR1")
 time.sleep(WAIT_TIME)  
 
@@ -52,7 +52,7 @@ time.sleep(WAIT_TIME)
 ac_device_4 = ACDevice("ac_4", "LR")
 time.sleep(WAIT_TIME)  
 
-print('******************* REGSITRED DEVICES ON THE SERVER *******************a')
+print('******************* REGISTRATION DEVICES ON THE SERVER *******************a')
 
 print('\nFetching the list of registered devices from EdgeServer')
 registered_devices = edge_server_1.get_registered_device_list()
