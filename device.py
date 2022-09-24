@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 import json
 import paho.mqtt.client as mqtt
 
@@ -9,7 +8,7 @@ OUTBOUND_TOPIC = 'outbound'
 INBOUND_TOPIC = 'inbound'
 
     
-class Device(ABC):
+class Device:
     
     def __init__(self, device_id, room, device_type):
         
@@ -73,11 +72,6 @@ class Device(ABC):
                 "switch_state": self._switch_state,
                 "intensity": self._intensity}
         self.client.publish(self._outbound_topic, json.dumps(payload), qos=2)
-
-    # Setting the the switch of devices
-    @abstractmethod
-    def _set_switch_status(self, switch_state):
-        pass
 
     def _ack(self, payload):
         self._log(payload)
