@@ -26,6 +26,7 @@ class EdgeServer:
             "STATUS": self._report_status,
             "ERROR": self._report_error,
             "INFO": self._log,
+            "NOT_IMPLEMENTED": self._log,
             "ACK": self._log
         }
     
@@ -66,12 +67,20 @@ class EdgeServer:
     def get_registered_device_list(self):
         return self._registered_list
 
-    # Getting the status for the connected devices
-    def get_status(self, param="all", value=None):
-        if param == 'all':
-            devices = self._registered_list
+    def _filter_registered_devices(self, **kwargs):
+        devices = self._registered_list
+        if "device_id" in kwargs:
+            devices = [device for device in devices if device["device_id"] == kwargs["device_id"]]
         else:
-            devices = [device for device in self._registered_list if device[param] == value]
+            if "device_type" in kwargs:
+                devices = [device for device in devices if device["device_type"] == kwargs["device_type"]]
+            if "room_type" in kwargs:
+                devices = [device for device in devices if device["room_type"] == kwargs["room_type"]]
+        return devices
+
+    # Getting the status for the connected devices
+    def get_status(self, **kwargs):
+        devices = self._filter_registered_devices(**kwargs)
         payload = {"msg_type": "GET_STATUS", "msg": ""}
         for device in devices:
             topic_str = f'{INBOUND_TOPIC}/{device["room_type"]}/{device["device_type"]}/{device["device_id"]}'
@@ -79,11 +88,8 @@ class EdgeServer:
 
     # Controlling and performing the operations on the devices
     # based on the request received
-    def set(self, param="all", value=None, control_param="switch", control_value="OFF"):
-        if param == 'all':
-            devices = self._registered_list
-        else:
-            devices = [device for device in self._registered_list if device[param] == value]
+    def set(self, control_param="switch", control_value="OFF", **kwargs):
+        devices = self._filter_registered_devices(**kwargs)
         payload = {"msg_type": f"SET_{control_param.upper()}", "value": control_value}
         for device in devices:
             topic_str = f'{INBOUND_TOPIC}/{device["room_type"]}/{device["device_type"]}/{device["device_id"]}'

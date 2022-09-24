@@ -58,9 +58,7 @@ class Device:
     def _on_message(self, client, userdata, msg): 
         payload = json.loads(msg.payload)
         msg_type = payload.get("msg_type")
-        action = self._MESSAGE_ACTION_MAPPING.get(msg_type)
-        if not action:   # Value is None when method not implemented for device type
-            return
+        action = self._MESSAGE_ACTION_MAPPING.get(msg_type, self._not_implemented)
         action(payload)
 
     # Getting the current switch status of devices 
@@ -80,6 +78,14 @@ class Device:
             "msg": payload.get("msg")
         }
         self.client.publish(self._outbound_topic, json.dumps(ack_payload), qos=2)
+
+    def _not_implemented(self, payload):
+        self._log(payload)
+        new_payload = {
+            "msg_type": "NOT_IMPLEMENTED",
+            "msg": f'{payload.get("msg_type")} not implemented for device type {self._device_type}'
+        }
+        self.client.publish(self._outbound_topic, json.dumps(new_payload), qos=2)
 
     def _report_error(self, payload):
         self._raise_alert(payload)
