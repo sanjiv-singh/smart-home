@@ -29,10 +29,6 @@ class ACDevice(Device):
         self.client.publish(self._outbound_topic, json.dumps(payload), qos=2)
 
     
-    # Getting the light intensity for the devices
-    def _get_switch_status(self):
-        return self._switch_status
-
     # Setting the the switch of devices
     def _set_switch_status(self, payload):
         status = payload.get("value")
@@ -42,10 +38,6 @@ class ACDevice(Device):
         else:
             return_payload = {"msg_type": "ERROR", "msg": f"{status}: Not a valid switch status"}
         self.client.publish(self._outbound_topic, json.dumps(return_payload))
-
-    # Getting the temperature for the devices
-    def _get_temperature(self):
-        return self._temperature        
 
     # Setting up the temperature of the devices
     def _set_temperature(self, payload):

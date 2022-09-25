@@ -27,10 +27,6 @@ class LightDevice(Device):
                 "intensity": self._intensity}
         self.client.publish(self._outbound_topic, json.dumps(payload), qos=2)
 
-    # Getting the light intensity for the devices
-    def _get_switch_status(self):
-        pass
-
     # Setting the the switch of devices
     def _set_switch_status(self, payload):
         status = payload.get("value")

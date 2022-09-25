@@ -52,7 +52,7 @@ time.sleep(WAIT_TIME)
 ac_device_4 = ACDevice("ac_4", "LR")
 time.sleep(WAIT_TIME)  
 
-print('******************* REGISTRATION DEVICES ON THE SERVER *******************a')
+print('******************* REGITERED DEVICES ON THE SERVER *******************a')
 
 print('\nFetching the list of registered devices from EdgeServer')
 registered_devices = edge_server_1.get_registered_device_list()
