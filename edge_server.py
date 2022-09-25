@@ -52,7 +52,7 @@ class EdgeServer:
     def _register_device(self, payload):
         device_id = payload.get('device_id')
         room_type = payload.get('room_type')
-        inbound_topic = f'{INBOUND_TOPIC}/{payload.get("room_type")}/{payload.get("device_type")}/{device_id}'
+        inbound_topic = f'{INBOUND_TOPIC}/{device_id}'
         print(f'\nEdge: Registering device {device_id} for {room_type}')
         if device_id in [d["device_id"] for d in self._registered_list]:
             print(f'Edge: Device {device_id} already registered.')
@@ -67,33 +67,50 @@ class EdgeServer:
     def get_registered_device_list(self):
         return self._registered_list
 
-    def _filter_registered_devices(self, **kwargs):
-        devices = self._registered_list
+    def _get_topic_from_args(self, **kwargs):
+        topic_str = INBOUND_TOPIC
+        # If device_id is specified, the topic is created and rest params are ignored
+        # e.g. /inbound/light_2
         if "device_id" in kwargs:
-            devices = [device for device in devices if device["device_id"] == kwargs["device_id"]]
-        else:
+            topic_str += f'/{kwargs["device_id"]}'
+            return topic_str
+        # If room_type is specified
+        # e.g. /inbound/BR1
+        if "room_type" in kwargs:
+            topic_str += f'/{kwargs["room_type"]}'
+            # In case both room_type and device_type are specified,
+            # publish on a new topic with both room and device types
+            # e.g. /inbound/BR1/AC
             if "device_type" in kwargs:
-                devices = [device for device in devices if device["device_type"] == kwargs["device_type"]]
-            if "room_type" in kwargs:
-                devices = [device for device in devices if device["room_type"] == kwargs["room_type"]]
-        return devices
+                topic_str += f'/{kwargs["device_type"]}'
+            return topic_str
+        # If device_type is specified
+        # e.g. /inbound/LIGHT
+        if "device_type" in kwargs:
+            topic_str += f'/{kwargs["device_type"]}'
+            return topic_str
+        # If no params are specified, publish to all
+        # i.e. /inbound/all
+        return topic_str + '/all'
 
     # Getting the status for the connected devices
     def get_status(self, **kwargs):
-        devices = self._filter_registered_devices(**kwargs)
+
+        # Work out the topic to be published on based
+        # on the keyword arguments passed by client
+        topic_str = self._get_topic_from_args(**kwargs)
         payload = {"msg_type": "GET_STATUS", "msg": ""}
-        for device in devices:
-            topic_str = f'{INBOUND_TOPIC}/{device["room_type"]}/{device["device_type"]}/{device["device_id"]}'
-            self.client.publish(topic_str, json.dumps(payload), qos=2)
+        self.client.publish(topic_str, json.dumps(payload), qos=2)
 
     # Controlling and performing the operations on the devices
     # based on the request received
     def set(self, control_param="switch", control_value="OFF", **kwargs):
-        devices = self._filter_registered_devices(**kwargs)
+
+        # Work out the topic to be published on based
+        # on the keyword arguments passed by client
+        topic_str = self._get_topic_from_args(**kwargs)
         payload = {"msg_type": f"SET_{control_param.upper()}", "value": control_value}
-        for device in devices:
-            topic_str = f'{INBOUND_TOPIC}/{device["room_type"]}/{device["device_type"]}/{device["device_id"]}'
-            self.client.publish(topic_str, json.dumps(payload), qos=2)
+        self.client.publish(topic_str, json.dumps(payload), qos=2)
 
     def _report_status(self, payload):
         print(f'Status of {payload["device_id"]}: {payload}')

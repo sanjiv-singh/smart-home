@@ -47,6 +47,18 @@ class Device:
     # Connect method to subscribe to various topics. 
     def _on_connect(self, client, userdata, flags, result_code):
         self.client.subscribe(self._inbound_topic)
+        topic_str = INBOUND_TOPIC
+        self.client.subscribe(topic_str)
+        topic_str = f'{INBOUND_TOPIC}/{self._device_id}'
+        self.client.subscribe(topic_str)
+        topic_str = f'{INBOUND_TOPIC}/{self._room_type}'
+        self.client.subscribe(topic_str)
+        topic_str = f'{INBOUND_TOPIC}/{self._device_type}'
+        self.client.subscribe(topic_str)
+        topic_str = f'{INBOUND_TOPIC}/{self._room_type}/{self._device_type}'
+        self.client.subscribe(topic_str)
+        topic_str = f'{INBOUND_TOPIC}/all'
+        self.client.subscribe(topic_str)
 
     # Terminate method to terminate connection. 
     def terminate(self):
